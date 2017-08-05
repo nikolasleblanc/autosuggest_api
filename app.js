@@ -12,6 +12,12 @@ app.get('/', function (req, res) {
     });
 });
 
+app.get('/search/:str', function (req, res) {
+    res.send({
+        message: 'You be searchin\', ' + req.params.str
+    });
+});
+
 app.listen(PORT);
 
 console.log('Running on http://localhost:' + PORT);
