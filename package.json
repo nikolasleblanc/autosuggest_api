@@ -4,7 +4,7 @@
   "description": "Express — Fast, unopinionated, minimalist web framework for Node.js",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/psimonov/node-express#readme",
   "dependencies": {
+    "@google-cloud/storage": "^1.2.1",
     "express": "latest",
-    "redis": "^2.7.1"
+    "redis": "^2.7.1",
+    "trie-prefix-tree-serialize": "0.0.1"
   }
 }
