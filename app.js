@@ -29,4 +29,6 @@ app.get('/search/:str', function (req, res) {
 
 app.listen(PORT);
 
+client.set('nikolas', 'so hot');
+
 console.log('Running on http://localhost:' + PORT);
