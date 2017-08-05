@@ -18,7 +18,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/search/:str', function (req, res) {
-    client.get(str, function(err, reply) {
+    client.get(req.params.str, function(err, reply) {
         // reply is null when the key is missing
         console.log('err: ', err, 'reply: ', reply);
     });
