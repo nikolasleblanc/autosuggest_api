@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/psimonov/node-express#readme",
   "dependencies": {
-    "express": "latest"
+    "express": "latest",
+    "redis": "^2.7.1"
   }
 }
