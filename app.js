@@ -19,11 +19,11 @@ app.get('/', function (req, res) {
 
 app.get('/search/:str', function (req, res) {
     client.get(req.params.str, function(err, reply) {
+        res.send({
+            message: 'You be searchin\', ' + req.params.str + ' ' + reply
+        });
         // reply is null when the key is missing
         console.log('err: ', err, 'reply: ', reply);
-    });
-    res.send({
-        message: 'You be searchin\', ' + req.params.str
     });
 });
 
