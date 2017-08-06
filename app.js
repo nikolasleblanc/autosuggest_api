@@ -115,6 +115,10 @@ app.get('/reset', (req, res) => {
     res.status(200).send('resetting memory');
 })
 
+app.get('/', function(req, res) {
+    res.send(process.env);
+});
+
 app.get('/search/:str', function (req, res) {
     const str = req.params.str;
     slave.get(req.params.str, function(err, reply) {
