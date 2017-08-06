@@ -50,8 +50,8 @@ const masterConfig = {
     port: '6379'
 }
 
-const slave = redis.createClient(slaveConfig);
 const master = redis.createClient(masterConfig);
+const slave = process.env.KUBERNETES_PORT_443_TCP_PROTO ? redis.createClient(slaveConfig) : master;
 
 const PORT = 3000;
 
@@ -72,7 +72,7 @@ const LIMIT = 10;
 
 app.get('/search/:str', function (req, res) {
     const str = req.params.str;
-    master.get(req.params.str, function(err, reply) {
+    slave.get(req.params.str, function(err, reply) {
         if (err) {
             console.log('redis error', err);
         } else {
