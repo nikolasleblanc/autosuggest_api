@@ -70,6 +70,10 @@ app.get('/_ready', function (req, res) {
 const DELIMITER = '****-----****';
 const LIMIT = 10;
 
+app.get('/search', function(req, res) {
+    res.send([]);
+})
+
 app.get('/search/:str', function (req, res) {
     const str = req.params.str;
     slave.get(req.params.str, function(err, reply) {
