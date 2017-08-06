@@ -148,4 +148,8 @@ getMostRecentFile()
 
 console.log('Running on http://localhost:' + PORT);
 
-fetch('http://api-service.my-cluster:3000').then(a => console.log('got this working maybe'));
+var fetch = require('node-fetch');
+
+fetch('http://api-service.my-cluster:3000')
+    .then(a => console.log('got this working maybe'))
+    .catch(err => console.log('nope', err));

@@ -19,6 +19,7 @@
   "dependencies": {
     "@google-cloud/storage": "^1.2.1",
     "express": "latest",
+    "node-fetch": "^1.7.1",
     "redis": "^2.7.1",
     "trie-prefix-tree-serialize": "0.0.1"
   }
