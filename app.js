@@ -1,6 +1,12 @@
 'use strict';
 
-const config = {};
+const projectId = 'bbtest-175601'; // E.g. 'grape-spaceship-123'
+const keyFilename = 'key.json';
+
+const config = process.env.KUBERNETES_PORT_443_TCP_PROTO ? {} : {
+  projectId,
+  keyFilename
+};
 
 const app = require('express')();
 const redis = require("redis");
@@ -62,12 +68,18 @@ app.get('/_ready', function (req, res) {
 app.get('/search/:str', function (req, res) {
     const str = req.params.str;
     slave.get(req.params.str, function(err, reply) {
-        if (reply === null) {
-            const matches = tree.getPrefix(str)
-            master.set(str, matches);
-            res.send(matches);
+        if (err) {
+            console.log('redis error', err);
         } else {
-            res.send(reply);
+            if (reply === null) {
+                const matches = tree.getPrefix(str)
+                master.set(str, matches);
+                console.log(str, 'got it from memory')
+                res.send(matches);
+            } else {
+                console.log(str, 'got it from redis')
+                res.send(reply);
+            }
         }
     });
 });
