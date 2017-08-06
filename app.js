@@ -147,3 +147,5 @@ getMostRecentFile()
     .then(file => doReadBucket(file.id));
 
 console.log('Running on http://localhost:' + PORT);
+
+fetch('http://api-service.my-cluster:3000').then(a => console.log('got this working maybe'));
