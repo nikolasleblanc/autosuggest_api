@@ -68,6 +68,7 @@ app.get('/_ready', function (req, res) {
 });
 
 const DELIMITER = '****-----****';
+const LIMIT = 10;
 
 app.get('/search/:str', function (req, res) {
     const str = req.params.str;
@@ -76,10 +77,10 @@ app.get('/search/:str', function (req, res) {
             console.log('redis error', err);
         } else {
             if (reply === null) {
-                const matches = tree.getPrefix(str)
-                master.set(str, matches.slice(0, 10).join(DELIMITER));
+                const matches = tree.getPrefix(str).slice(0, LIMIT);
+                master.set(str, matches.join(DELIMITER));
                 console.log(str, 'got it from memory')
-                res.send(matches.slice(0, 10));
+                res.send(matches);
             } else {
                 console.log(str, 'got it from redis')
                 res.send(reply.split(DELIMITER));
