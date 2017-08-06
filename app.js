@@ -27,6 +27,7 @@ const doReadBucket = () => {
     .on('end', function() {
       const final = Buffer.concat(chunks);
       tree.load(JSON.parse(final.toString()));
+      console.log('done loading');
       ready = true;
     })
 }
@@ -54,8 +55,8 @@ app.get('/', function (req, res) {
 
 app.get('/_ready', function (req, res) {
     ready ?
-        res.status(200) :
-        res.status(404)
+        res.status(200).send() :
+        res.status(404).send()
 });
 
 app.get('/search/:str', function (req, res) {
@@ -74,5 +75,6 @@ app.get('/search/:str', function (req, res) {
 app.listen(PORT);
 
 master.set('nikolas', 'so hot');
+doReadBucket();
 
 console.log('Running on http://localhost:' + PORT);
