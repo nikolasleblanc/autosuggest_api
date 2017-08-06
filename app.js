@@ -150,6 +150,6 @@ console.log('Running on http://localhost:' + PORT);
 
 var fetch = require('node-fetch');
 
-fetch('http://api-service.default:3000')
-    .then(a => console.log('got this working maybe'))
+fetch('http://api-service.default:3000/search/a')
+    .then(a => console.log('got this working maybe', a.json()))
     .catch(err => console.log('nope', err));
