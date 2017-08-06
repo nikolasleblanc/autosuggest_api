@@ -152,4 +152,5 @@ var fetch = require('node-fetch');
 
 fetch('http://api-service.default:3000/search/a')
     .then(a => console.log('got this working maybe', a.json()))
+    .then(a => console.log(a))
     .catch(err => console.log('nope', err));
