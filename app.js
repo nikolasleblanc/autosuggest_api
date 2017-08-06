@@ -8,7 +8,7 @@ const config = process.env.KUBERNETES_PORT_443_TCP_PROTO ? {} : {
   keyFilename
 };
 
-const redisHost = process.env.KUBERNETES_PORT_443_TCP_PROTO ? '10.47.246.251' : 'localhost'
+const redisHost = process.env.KUBERNETES_PORT_443_TCP_PROTO ? 'redis-host.default' : 'localhost'
 
 const app = require('express')();
 const redis = require("redis");
@@ -70,7 +70,7 @@ const doReadBucket = (filename) => {
 }
 
 const slaveConfig = {
-    host: '10.47.251.218',
+    host: 'redis-slave.default',
     port: '6379'
 }
 
