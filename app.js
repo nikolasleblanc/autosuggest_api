@@ -8,6 +8,8 @@ const config = process.env.KUBERNETES_PORT_443_TCP_PROTO ? {} : {
   keyFilename
 };
 
+const redisHost = process.env.KUBERNETES_PORT_443_TCP_PROTO ? '10.47.246.251' : 'localhost'
+
 const app = require('express')();
 const redis = require("redis");
 const gcs = require('@google-cloud/storage')(config);
@@ -44,7 +46,7 @@ const slaveConfig = {
 }
 
 const masterConfig = {
-    host: '10.47.246.251',
+    host: redisHost,
     port: '6379'
 }
 
@@ -65,20 +67,22 @@ app.get('/_ready', function (req, res) {
         res.status(404).send()
 });
 
+const DELIMITER = '****-----****';
+
 app.get('/search/:str', function (req, res) {
     const str = req.params.str;
-    slave.get(req.params.str, function(err, reply) {
+    master.get(req.params.str, function(err, reply) {
         if (err) {
             console.log('redis error', err);
         } else {
             if (reply === null) {
                 const matches = tree.getPrefix(str)
-                master.set(str, matches);
+                master.set(str, matches.slice(0, 10).join(DELIMITER));
                 console.log(str, 'got it from memory')
                 res.send(matches.slice(0, 10));
             } else {
                 console.log(str, 'got it from redis')
-                res.send(reply);
+                res.send(reply.split(DELIMITER));
             }
         }
     });
