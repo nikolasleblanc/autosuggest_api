@@ -15,14 +15,43 @@ const redis = require("redis");
 const gcs = require('@google-cloud/storage')(config);
 const bucket = gcs.bucket('bestbuymulti');
 const pretree = require('trie-prefix-tree-serialize');
+const dest = gcs.bucket('bestbuymulti_trie');
 
 let tree = pretree([]);
 
 let ready = false;
 
-const doReadBucket = () => {
+const getMostRecentFile = () => {
+    const promise = new Promise((resolve, reject) => {
+        dest.getFiles(function(err, files) {
+            if (!err && files.length) {
+                files = files.map(file => {
+                    return {
+                        id: file.id, timeCreated: file.metadata.timeCreated
+                    }
+                })
+                files.sort((a, b) => {
+                    if (a.timeCreated < b.timeCreated) {
+                        return 1;
+                    }
+                    if (a.timeCreated > b.timeCreated) {
+                        return -1;
+                    }
+                    return 0;
+                })
+                resolve(files);
+            } else {
+                reject();
+            }
+        });
+    });
+    return promise;
+}
+
+const doReadBucket = (filename) => {
+  const file = filename || 'output_trie.json';
   const chunks = [];
-  bucket.file('output_trie.json').createReadStream()
+  dest.file(file).createReadStream()
   //fs.createReadStream('output_trie.json')
     .on('error', (err) => {
       console.log('err', err);
@@ -81,7 +110,8 @@ app.get('/flush', (req, res) => {
 
 app.get('/reset', (req, res) => {
     ready = false;
-    doReadBucket();
+    getMostRecentFile()
+        .then(fileName => doReadBucket(fileName));
     res.status(200).send('resetting memory');
 })
 
@@ -107,6 +137,9 @@ app.get('/search/:str', function (req, res) {
 app.listen(PORT);
 
 master.set('nikolas', 'so hot');
-doReadBucket();
+
+getMostRecentFile()
+    .then(files => files[0])
+    .then(file => doReadBucket(file.id));
 
 console.log('Running on http://localhost:' + PORT);
