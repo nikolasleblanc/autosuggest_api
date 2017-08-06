@@ -75,7 +75,7 @@ app.get('/search/:str', function (req, res) {
                 const matches = tree.getPrefix(str)
                 master.set(str, matches);
                 console.log(str, 'got it from memory')
-                res.send(matches);
+                res.send(matches.slice(0, 10));
             } else {
                 console.log(str, 'got it from redis')
                 res.send(reply);
