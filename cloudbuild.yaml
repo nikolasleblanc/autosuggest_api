@@ -6,7 +6,7 @@ steps:
     args: ["build", "-t", "nikolasleblanc/autosuggest_api:${TAG_NAME}", "."]
     id: "docker-build"
 
-  - name: gcr.io/google_containers/hyperkube:v1.5.3
+  - name: gcr.io/google_containers/hyperkube:v1.6.0
     env: ["KUBECONFIG=/workspace/kubeconfig"]
     entrypoint: "/hyperkube"
     args: ["kubectl", "apply", "-f", "/workspace/kubeconfig"]
