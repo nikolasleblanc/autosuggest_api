@@ -9,4 +9,9 @@ steps:
   - name: gcr.io/google_containers/hyperkube:v1.7.0
     env: ["KUBECONFIG=/workspace/kubeconfig"]
     entrypoint: "/hyperkube"
+    args: ["kubectl", "version"]
+
+  - name: gcr.io/google_containers/hyperkube:v1.7.0
+    env: ["KUBECONFIG=/workspace/kubeconfig"]
+    entrypoint: "/hyperkube"
     args: ["kubectl", "apply", "-f", "/workspace/kubeconfig"]
