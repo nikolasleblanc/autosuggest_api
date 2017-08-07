@@ -7,10 +7,6 @@ const master = redis.createClient(CONSTANTS.MASTER_CONFIG);
 const slave = process.env.KUBERNETES_PORT_443_TCP_PROTO ? redis.createClient(CONSTANTS.SLAVE_CONFIG) : master;
 
 module.exports = function(app, ready){
-  app.get('/', function (req, res) {
-    res.send(process.env);
-  });
-
   app.get('/search', function (req, res) {
     res.send([]);
   });
