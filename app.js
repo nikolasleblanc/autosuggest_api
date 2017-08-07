@@ -2,156 +2,41 @@
 
 require('dotenv').config()
 
-const projectId = process.env.MY_PROJECT_ID;
-const keyFilename = process.env.MY_KEYFILE;
-
-const config = process.env.KUBERNETES_PORT_443_TCP_PROTO ? {} : {
-  projectId,
-  keyFilename
-};
-
-const redisHost = process.env.KUBERNETES_PORT_443_TCP_PROTO ? 'redis-master.default' : 'localhost'
-
 const app = require('express')();
-const redis = require('redis');
-const gcs = require('@google-cloud/storage')(config);
-const pretree = require('trie-prefix-tree-serialize');
-const bucket = gcs.bucket(process.env.BUCKET);
 
-let tree = pretree([]);
+const trie = require('./trie');
+const routes = require('./routes');
+const CONSTANTS = require('./constants');
+const bucketUtils = require('./bucket');
+
+const gcs = require('@google-cloud/storage')(CONSTANTS.G_CONFIG);
+const bucket = gcs.bucket(CONSTANTS.BUCKET_NAME);
 
 let ready = false;
 
-const getMostRecentFile = () => {
-    const promise = new Promise((resolve, reject) => {
-        bucket.getFiles(function(err, files) {
-            if (!err && files.length) {
-                files = files.map(file => {
-                    return {
-                        id: file.id, timeCreated: file.metadata.timeCreated
-                    }
-                })
-                files.sort((a, b) => {
-                    if (a.timeCreated < b.timeCreated) {
-                        return 1;
-                    }
-                    if (a.timeCreated > b.timeCreated) {
-                        return -1;
-                    }
-                    return 0;
-                })
-                resolve(files);
-            } else {
-                reject();
-            }
-        });
-    });
-    return promise;
-}
-
-const doReadBucket = (filename) => {
-  console.log('Updating local memory');
-  const chunks = [];
-  ready = false;
-  bucket.file(filename).createReadStream()
-  //fs.createReadStream('output_trie.json')
-    .on('error', (err) => {
-      console.log('err', err);
-    })
-    .on('data', (data) => {
-      if (data !== '') {
-        chunks.push(data);
-      }
-    })
-    .on('end', function() {
-      const final = Buffer.concat(chunks);
-      tree.load(JSON.parse(final.toString()));
-      console.log('done loading');
-      ready = true;
-      timestamp = Date.now().toString();
-    })
-}
-
-const slaveConfig = {
-    host: 'redis-slave.default',
-    port: '6379'
-}
-
-const masterConfig = {
-    host: redisHost,
-    port: '6379'
-}
-
-const master = redis.createClient(masterConfig);
-const slave = process.env.KUBERNETES_PORT_443_TCP_PROTO ? redis.createClient(slaveConfig) : master;
-
-const PORT = 3000;
-
 app.disable('x-powered-by');
+routes(app, ready);
 
-app.get('/', function (req, res) {
-    res.send(process.env);
-});
+const resetTrie = () => {
+  ready = false;
+  bucketUtils.getLatestFromBucketIntoTrie(bucket, trie)
+    .then(() => ready = true);
+}
 
 app.get('/_ready', function (req, res) {
-    ready ?
-        res.status(200).send() :
-        res.status(404).send()
+  ready ?
+    res.status(200).send() :
+    res.status(404).send()
 });
-
-const DELIMITER = '****-----****';
-const LIMIT = 25;
-
-app.get('/search', function(req, res) {
-    res.send([]);
-});
-
-app.get('/flush', (req, res) => {
-    master.flushall();
-    res.send('flushing');
-})
 
 app.get('/reset', (req, res) => {
-    ready = false;
-    getMostRecentFile()
-        .then(fileName => doReadBucket(fileName));
-    res.status(200).send('resetting memory');
+  resetTrie()
+  res.status(200).send('resetting memory');
 })
 
-app.get('/', function(req, res) {
-    res.send(process.env);
-});
+setInterval(function getLatest() {
+  resetTrie();
+  return getLatest;
+}(), 1000 * 60 * 10);
 
-app.get('/search/:str', function (req, res) {
-    const str = req.params.str;
-    slave.get(req.params.str, function(err, reply) {
-        if (err) {
-            console.log('redis error', err);
-        } else {
-            if (reply === null) {
-                const matches = tree.getPrefix(str).slice(0, LIMIT);
-                master.set(str, matches.join(DELIMITER));
-                master.expire(str, 60*10)
-                console.log(str, 'got it from memory')
-                res.send(matches);
-            } else {
-                console.log(str, 'got it from redis')
-                res.send(reply.split(DELIMITER));
-            }
-        }
-    });
-});
-
-app.listen(PORT);
-
-getMostRecentFile()
-    .then(files => files[0])
-    .then(file => doReadBucket(file.id))
-
-let timestamp = Date.now().toString();
-
-setInterval(() => {
-    getMostRecentFile()
-        .then(files => files[0])
-        .then(file => doReadBucket(file.id))
-}, 1000*60*10)
+app.listen(CONSTANTS.PORT);
