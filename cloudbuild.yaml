@@ -1,6 +1,6 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
-    args: ["cp", "gs://${PROJECT_ID}/bestbuy-kube/api-deployment.yaml", "/workspace/kubeconfig"]
+    args: ["cp", "gs://bestbuy-kube/api-deployment.yaml", "/workspace/kubeconfig"]
 
   - name: gcr.io/cloud-builders/docker
     args: ["build", "-t", "github.com/nikolasleblanc/autosuggest_api:${TAG_NAME}"]
