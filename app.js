@@ -8,7 +8,7 @@ const config = process.env.KUBERNETES_PORT_443_TCP_PROTO ? {} : {
   keyFilename
 };
 
-const redisHost = process.env.KUBERNETES_PORT_443_TCP_PROTO ? 'redis-host.default' : 'localhost'
+const redisHost = process.env.KUBERNETES_PORT_443_TCP_PROTO ? 'redis-master.default' : 'localhost'
 
 const app = require('express')();
 const redis = require("redis");
