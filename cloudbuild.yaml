@@ -3,7 +3,7 @@ steps:
     args: ["cp", "gs://bestbuy-kube/api-deployment.yaml", "/workspace/kubeconfig"]
 
   - name: gcr.io/cloud-builders/docker
-    args: ["build", "-t", "github.com/nikolasleblanc/autosuggest_api:${TAG_NAME}"]
+    args: ["build", "-t", "nikolasleblanc/autosuggest_api:${TAG_NAME}", "."]
     id: "docker-build"
 
   - name: gcr.io/google_containers/hyperkube:v1.5.3
