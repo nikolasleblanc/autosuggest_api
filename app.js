@@ -1,7 +1,9 @@
 'use strict';
 
-const projectId = 'bbtest-175601'; // E.g. 'grape-spaceship-123'
-const keyFilename = 'key.json';
+require('dotenv').config()
+
+const projectId = process.env.MY_PROJECT_ID;
+const keyFilename = process.env.MY_KEYFILE;
 
 const config = process.env.KUBERNETES_PORT_443_TCP_PROTO ? {} : {
   projectId,
@@ -11,11 +13,10 @@ const config = process.env.KUBERNETES_PORT_443_TCP_PROTO ? {} : {
 const redisHost = process.env.KUBERNETES_PORT_443_TCP_PROTO ? 'redis-master.default' : 'localhost'
 
 const app = require('express')();
-const redis = require("redis");
+const redis = require('redis');
 const gcs = require('@google-cloud/storage')(config);
-const bucket = gcs.bucket('bestbuymulti');
 const pretree = require('trie-prefix-tree-serialize');
-const dest = gcs.bucket('bestbuymulti_trie');
+const bucket = gcs.bucket(process.env.BUCKET);
 
 let tree = pretree([]);
 
@@ -23,7 +24,7 @@ let ready = false;
 
 const getMostRecentFile = () => {
     const promise = new Promise((resolve, reject) => {
-        dest.getFiles(function(err, files) {
+        bucket.getFiles(function(err, files) {
             if (!err && files.length) {
                 files = files.map(file => {
                     return {
@@ -50,10 +51,9 @@ const getMostRecentFile = () => {
 
 const doReadBucket = (filename) => {
   console.log('Updating local memory');
-  const file = filename || 'output_trie.json';
   const chunks = [];
   ready = false;
-  dest.file(file).createReadStream()
+  bucket.file(filename).createReadStream()
   //fs.createReadStream('output_trie.json')
     .on('error', (err) => {
       console.log('err', err);
@@ -144,13 +144,9 @@ app.get('/search/:str', function (req, res) {
 
 app.listen(PORT);
 
-master.set('nikolas', 'so hot');
-
 getMostRecentFile()
     .then(files => files[0])
     .then(file => doReadBucket(file.id))
-
-console.log('Running on http://localhost:' + PORT);
 
 let timestamp = Date.now().toString();
 

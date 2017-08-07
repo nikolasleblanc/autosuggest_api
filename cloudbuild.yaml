@@ -1,9 +1,0 @@
-steps:
-  - name: gcr.io/cloud-builders/gsutil
-    args: ["cp", "gs://bestbuy-kube/api-deployment.yaml", "/workspace/kubeconfig"]
-
-  - name: gcr.io/cloud-builders/docker
-    args: ["build", "-t", "nikolasleblanc/autosuggest_api:${TAG_NAME}", "."]
-    id: "docker-build"
-
-images: ['gcr.io/${PROJECT_ID}/autosuggest_api:${TAG_NAME}']
