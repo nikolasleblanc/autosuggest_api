@@ -131,6 +131,7 @@ app.get('/search/:str', function (req, res) {
             if (reply === null) {
                 const matches = tree.getPrefix(str).slice(0, LIMIT);
                 master.set(str, matches.join(DELIMITER));
+                master.expire(str, 60*10)
                 console.log(str, 'got it from memory')
                 res.send(matches);
             } else {
@@ -157,4 +158,4 @@ setInterval(() => {
     getMostRecentFile()
         .then(files => files[0])
         .then(file => doReadBucket(file.id))
-}, 1000*60*1)
+}, 1000*60*10)
