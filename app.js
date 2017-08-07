@@ -49,8 +49,10 @@ const getMostRecentFile = () => {
 }
 
 const doReadBucket = (filename) => {
+  console.log('Updating local memory');
   const file = filename || 'output_trie.json';
   const chunks = [];
+  ready = false;
   dest.file(file).createReadStream()
   //fs.createReadStream('output_trie.json')
     .on('error', (err) => {
@@ -66,6 +68,7 @@ const doReadBucket = (filename) => {
       tree.load(JSON.parse(final.toString()));
       console.log('done loading');
       ready = true;
+      timestamp = Date.now().toString();
     })
 }
 
@@ -144,13 +147,14 @@ master.set('nikolas', 'so hot');
 
 getMostRecentFile()
     .then(files => files[0])
-    .then(file => doReadBucket(file.id));
+    .then(file => doReadBucket(file.id))
 
 console.log('Running on http://localhost:' + PORT);
 
-var fetch = require('node-fetch');
+let timestamp = Date.now().toString();
 
-fetch('http://api-service.default:3000/search/a')
-    .then(a => console.log('got this working maybe', a.json()))
-    .then(a => console.log(a))
-    .catch(err => console.log('nope', err));
+setInterval(() => {
+    getMostRecentFile()
+        .then(files => files[0])
+        .then(file => doReadBucket(file.id))
+}, 1000*60*1)
