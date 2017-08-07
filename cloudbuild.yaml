@@ -6,10 +6,4 @@ steps:
     args: ["build", "-t", "nikolasleblanc/autosuggest_api:${TAG_NAME}", "."]
     id: "docker-build"
 
-  - name: gcr.io/cloud-builders/kubectl
-    env: ["KUBECONFIG=/workspace/kubeconfig", "CLOUDSDK_CONTAINER_CLUSTER=my-cluster", "CLOUDSDK_COMPUTE_ZONE=us-central1-b"]
-    args: ["version"]
-
-  - name: gcr.io/cloud-builders/kubectl
-    env: ["KUBECONFIG=/workspace/kubeconfig"]
-    args: ["apply", "-f", "/workspace/kubeconfig", "--validate=false"]
+images: ['gcr.io/${PROJECT_ID}/autosuggest_api:${TAG_NAME}']
