@@ -8,10 +8,8 @@ steps:
 
   - name: gcr.io/cloud-builders/kubectl
     env: ["KUBECONFIG=/workspace/kubeconfig"]
-    entrypoint: "/hyperkube"
     args: ["kubectl", "version"]
 
   - name: gcr.io/cloud-builders/kubectl
     env: ["KUBECONFIG=/workspace/kubeconfig"]
-    entrypoint: "/hyperkube"
     args: ["kubectl", "apply", "-f", "/workspace/kubeconfig"]
