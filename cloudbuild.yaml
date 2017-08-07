@@ -12,4 +12,4 @@ steps:
 
   - name: gcr.io/cloud-builders/kubectl
     env: ["KUBECONFIG=/workspace/kubeconfig"]
-    args: ["apply", "-f", "/workspace/kubeconfig"]
+    args: ["apply", "-f", "/workspace/kubeconfig", "--validate=false"]
